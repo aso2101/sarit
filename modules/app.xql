@@ -4,7 +4,7 @@ module namespace app="http://exist-db.org/apps/appblueprint/templates";
 
 import module namespace sarit="http://exist-db.org/xquery/sarit";
 import module namespace console="http://exist-db.org/xquery/console" at "java:org.exist.console.xquery.ConsoleModule";
-import module namespace templates="http://exist-db.org/xquery/templates" ;
+import module namespace templates="http://exist-db.org/xquery/templates";
 import module namespace config="http://exist-db.org/apps/appblueprint/config" at "config.xqm";
 import module namespace request="http://exist-db.org/xquery/request";
 import module namespace tei-to-html="http://exist-db.org/xquery/app/tei2html" at "tei2html.xql";
@@ -152,7 +152,7 @@ declare
     %templates:default("full", "false")
 function app:outline($node as node(), $model as map(*), $full as xs:boolean) {
     let $position := $model("work")
-    let $root := if ($full) then $position/ancestor::tei:TEI else $position
+    let $root := if ($full) then $position/ancestor-or-self::tei:TEI else $position
     let $long := $node/@data-template-details/string()
     let $work := $root/ancestor-or-self::tei:TEI
     return
@@ -489,7 +489,7 @@ function app:navigation($node as node(), $model as map(*)) {
     let $div := $model("work")
     let $parent := $div/ancestor::tei:div[not(*[1] instance of element(tei:div))][1]
     let $prevDiv := $div/preceding::tei:div[1]
-    let $prevDiv := app:get-previous(if ($div/.. >> $prevDiv) then $div/.. else $prevDiv)
+    let $prevDiv := app:get-previous(if ($parent and $div/.. >> $prevDiv) then $div/.. else $prevDiv)
     let $nextDiv := app:get-next($div)
 (:        ($div//tei:div[not(*[1] instance of element(tei:div))] | $div/following::tei:div)[1]:)
     let $work := $div/ancestor-or-self::tei:TEI
